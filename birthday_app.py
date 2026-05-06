@@ -16,14 +16,7 @@ FIRST_NAME  = "Olayemi"
 today       = date.today()
 is_birthday = today == BIRTHDAY
 
-# ── Countdown values ──────────────────────────────────────────────────────────
-bday_dt   = datetime(2026, 5, 11, 0, 0, 0)
-delta     = bday_dt - datetime.now()
-total_sec = max(int(delta.total_seconds()), 0)
-cd_days   = total_sec // 86400
-cd_hours  = (total_sec % 86400) // 3600
-cd_mins   = (total_sec % 3600) // 60
-cd_secs   = total_sec % 60
+# Countdown is handled client-side by JS setInterval
 
 # ── Streamlit-level overrides (no complex HTML here) ─────────────────────────
 st.markdown(
@@ -70,19 +63,19 @@ else:
     inner_section = f"""
     <div class="countdown-wrap">
       <div class="countdown-box">
-        <span class="countdown-number">{cd_days:02d}</span>
+        <span class="countdown-number" id="cd-days">00</span>
         <span class="countdown-label">Days</span>
       </div>
       <div class="countdown-box">
-        <span class="countdown-number">{cd_hours:02d}</span>
+        <span class="countdown-number" id="cd-hours">00</span>
         <span class="countdown-label">Hours</span>
       </div>
       <div class="countdown-box">
-        <span class="countdown-number">{cd_mins:02d}</span>
+        <span class="countdown-number" id="cd-mins">00</span>
         <span class="countdown-label">Minutes</span>
       </div>
       <div class="countdown-box">
-        <span class="countdown-number">{cd_secs:02d}</span>
+        <span class="countdown-number" id="cd-secs">00</span>
         <span class="countdown-label">Seconds</span>
       </div>
     </div>
@@ -116,6 +109,30 @@ for i in range(25):
         f'<div class="sparkle" style="--lx:{lx}%;--ty:{ty}%;'
         f'--dur2:{dur2}s;--delay2:{delay2}s;"></div>\n'
     )
+
+# ── Birthday-only content (wishes + ribbon hidden until May 11th) ─────────────
+if is_birthday:
+    birthday_only_html = f"""
+<div class="message-card">
+  <p>
+    <span class="quote-mark">&ldquo;</span>
+    &nbsp;May this birthday be the beginning of a year so full of laughter,
+    love, and beautiful moments that you lose count of all the reasons to smile.
+    Here&rsquo;s to you, <strong>{FIRST_NAME}</strong> &mdash; celebrated, cherished,
+    and absolutely irreplaceable. &#x1F942;&nbsp;
+    <span class="quote-mark">&rdquo;</span>
+  </p>
+</div>
+<div class="ribbon">&#127873; &#x1F942; &#127800; &#127872; &#10024; &#127882; &#127926;</div>
+"""
+else:
+    birthday_only_html = """
+<div class="teaser-card">
+  <p class="lock-icon">&#128274;</p>
+  <p class="teaser-text">A special message is waiting&hellip;<br>
+  <span>Check back on May 11th to unlock it.</span></p>
+</div>
+"""
 
 # ── Full self-contained HTML (rendered in iframe via components.html) ──────────
 page_html = f"""<!DOCTYPE html>
@@ -358,6 +375,40 @@ page_html = f"""<!DOCTYPE html>
     opacity: 0.65;
   }}
 
+  /* Teaser card (pre-birthday) */
+  .teaser-card {{
+    background: rgba(255,255,255,0.03);
+    border: 1px dashed rgba(255,215,0,0.2);
+    border-radius: 16px;
+    padding: 32px 28px;
+    margin: 20px auto 0;
+    max-width: 760px;
+    text-align: center;
+    z-index: 1;
+    position: relative;
+  }}
+  .lock-icon {{
+    font-size: 2.4rem;
+    margin-bottom: 12px;
+    opacity: 0.5;
+    animation: sway 3s ease-in-out infinite;
+  }}
+  @keyframes sway {{
+    0%, 100% {{ transform: rotate(-8deg); }}
+    50%       {{ transform: rotate(8deg); }}
+  }}
+  .teaser-text {{
+    font-size: 0.95rem;
+    color: rgba(240,230,211,0.45);
+    line-height: 1.8;
+    letter-spacing: 0.5px;
+  }}
+  .teaser-text span {{
+    color: rgba(255,215,0,0.45);
+    font-style: italic;
+    font-size: 0.88rem;
+  }}
+
   .footer {{
     text-align: center;
     font-size: 0.75rem;
@@ -382,31 +433,66 @@ page_html = f"""<!DOCTYPE html>
   {inner_section}
 </div>
 
-<div class="message-card">
-  <p>
-    <span class="quote-mark">&ldquo;</span>
-    &nbsp;May this birthday be the beginning of a year so full of laughter,
-    love, and beautiful moments that you lose count of all the reasons to smile.
-    Here&rsquo;s to you, <strong>{FIRST_NAME}</strong> &mdash; celebrated, cherished,
-    and absolutely irreplaceable. &#x1F942;&nbsp;
-    <span class="quote-mark">&rdquo;</span>
-  </p>
-</div>
+{birthday_only_html}
 
-<div class="ribbon">&#127873; &#x1F942; &#127800; &#127872; &#10024; &#127882; &#127926;</div>
 <p class="footer">Made with &#10084;&#65039; &middot; Olayemi Martins &middot; May 11th</p>
 
+<script>
+  (function() {
+    var target = new Date('2026-05-11T00:00:00').getTime();
+
+    function pad(n) { return String(n).padStart(2, '0'); }
+
+    function tick() {
+      var now  = Date.now();
+      var diff = target - now;
+      if (diff <= 0) { diff = 0; }
+
+      var days  = Math.floor(diff / 86400000);
+      var hours = Math.floor((diff % 86400000) / 3600000);
+      var mins  = Math.floor((diff % 3600000)  / 60000);
+      var secs  = Math.floor((diff % 60000)    / 1000);
+
+      var dEl = document.getElementById('cd-days');
+      var hEl = document.getElementById('cd-hours');
+      var mEl = document.getElementById('cd-mins');
+      var sEl = document.getElementById('cd-secs');
+
+      if (dEl) dEl.textContent = pad(days);
+      if (hEl) hEl.textContent = pad(hours);
+      if (mEl) mEl.textContent = pad(mins);
+      if (sEl) {
+        var prev = sEl.textContent;
+        sEl.textContent = pad(secs);
+        // Pulse animation on seconds change
+        if (prev !== pad(secs)) {
+          sEl.style.transform = 'scale(1.25)';
+          sEl.style.color = '#ffcc00';
+          setTimeout(function() {
+            sEl.style.transform = 'scale(1)';
+            sEl.style.color = '#ffd700';
+          }, 200);
+        }
+      }
+
+      if (diff === 0) { clearInterval(timer); }
+    }
+
+    tick();
+    var timer = setInterval(tick, 1000);
+  })();
+</script>
 </body>
 </html>"""
 
 # ── Render ────────────────────────────────────────────────────────────────────
 components.html(page_html, height=820, scrolling=False)
 
-# ── Balloon button (lives outside the iframe in real Streamlit DOM) ────────────
-st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
-col_l, col_c, col_r = st.columns([1, 2, 1])
-with col_c:
-    label = "&#127881; Release the Balloons!" if is_birthday else "&#127880; Send Early Wishes!"
-    if st.button("🎉 Release the Balloons!" if is_birthday else "🎈 Send Early Wishes!", use_container_width=True):
-        st.balloons()
-        st.toast(f"🎂 Happy Birthday, {FIRST_NAME}! 🎉", icon="🎈")
+# ── Balloon button — only on the birthday ─────────────────────────────────────
+if is_birthday:
+    st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+    col_l, col_c, col_r = st.columns([1, 2, 1])
+    with col_c:
+        if st.button("🎉 Release the Balloons!", use_container_width=True):
+            st.balloons()
+            st.toast(f"🎂 Happy Birthday, {FIRST_NAME}! 🎉", icon="🎈")
