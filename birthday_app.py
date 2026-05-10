@@ -404,7 +404,7 @@ page_html = (
 )
 
 # ── Render ────────────────────────────────────────────────────────────────────
-components.html(page_html, height=820, scrolling=False)
+st.iframe(page_html, height=820, scrolling=False)
 
 # ── Balloon button — only shown on the birthday ───────────────────────────────
 if is_birthday:
