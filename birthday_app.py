@@ -1,4 +1,4 @@
-import streamlit as st
+I import streamlit as st
 import streamlit.components.v1 as components
 from datetime import date, datetime
 
@@ -86,7 +86,7 @@ if is_birthday:
         <span class="quote-mark">&ldquo;</span>
         &nbsp;May this birthday be the beginning of a year so full of laughter,
         love, and beautiful moments that you lose count of all the reasons to smile.
-        Here&rsquo;s to you, <strong>{FIRST_NAME}</strong> &mdash; celebrated, cherished,
+        Here&rsquo;s to you, <strong>{FIRST_NAME}</strong>, celebrated, cherished,
         and absolutely irreplaceable. &#x1F942;&nbsp;
         <span class="quote-mark">&rdquo;</span>
       </p>
