@@ -2,17 +2,15 @@ import streamlit as st
 import streamlit.components.v1 as components
 from datetime import date, datetime
 
-# ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="Happy Birthday, Olayemi! 🎂",
+    page_title="Happy Birthday, Imo! 🎂",
     page_icon="🎂",
     layout="centered",
     initial_sidebar_state="collapsed",
 )
 
-# ── Constants ─────────────────────────────────────────────────────────────────
-BIRTHDAY    = date(2026, 5, 11)
-FIRST_NAME  = "Olayemi"
+BIRTHDAY    = date(2026, 5, 19)
+FIRST_NAME  = "Imo"
 today       = date.today()
 is_birthday = today == BIRTHDAY
 
@@ -122,7 +120,7 @@ else:
     <div class="teaser-card">
       <p class="lock-icon">&#128274;</p>
       <p class="teaser-text">A special message is waiting&hellip;<br>
-      <span>Check back on May 11th to unlock it.</span></p>
+      <span>Check back on May 19th to unlock it.</span></p>
     </div>
     """
 
@@ -396,7 +394,7 @@ page_html = (
     + """</div>
 """
     + bottom_section
-    + """<p class="footer">Made with &#10084;&#65039; &middot; Olayemi Martins &middot; May 11th</p>
+    + """<p class="footer">Made with ❤️ · Imo · May 19th \n I ain't gay sha 😂 </p>
 """
     + (ticker_js if not is_birthday else "")
     + """</body>
